@@ -5,61 +5,70 @@ export default function RawImageSection({
   onToggleAll,
   onProcess,
 }) {
-  const allSelected = photos.length > 0 && selectedIds.size === photos.length;
+  const allSelected = selectedIds.size === photos.length && photos.length > 0;
 
   return (
     <section className="bg-white rounded-2xl shadow p-6">
-      {/* Updated heading */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      {/* Header Row */}
+      <div className="flex flex-wrap items-center justify-between mb-4">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-          📸 Gallery
+          🐾 Photo Gallery
         </h2>
 
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-sm sm:text-base">
-            <input
-              type="checkbox"
-              checked={allSelected}
-              onChange={onToggleAll}
-              className="size-4 accent-indigo-600"
-            />
-            Select All
-          </label>
+        <div className="flex gap-3">
+          {/* Select All / Deselect All */}
+          <button
+            onClick={onToggleAll}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium"
+          >
+            {allSelected ? "Deselect All" : "Select All"}
+          </button>
 
-          {/* changed button text */}
+          {/* Generate Button */}
           <button
             onClick={onProcess}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-60"
             disabled={selectedIds.size === 0}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              selectedIds.size === 0
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-[#1A73E8] hover:bg-blue-700 text-white"
+            }`}
           >
             Generate
           </button>
         </div>
       </div>
 
-      {/* Image grid (no names) */}
+      {/* Image Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {photos.map((p) => {
-          const checked = selectedIds.has(p.id);
+          const isSelected = selectedIds.has(p.id);
+
           return (
             <div
               key={p.id}
-              className="relative bg-gray-50 rounded-2xl overflow-hidden shadow hover:shadow-md transition"
+              onClick={() => onToggleOne(p.id)}
+              className={`relative cursor-pointer rounded-2xl overflow-hidden shadow hover:shadow-md transition transform hover:scale-105 ${
+                isSelected ? "ring-4 ring-[#1A73E8]" : ""
+              }`}
             >
+              {/* Checkbox */}
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onToggleOne(p.id)}
+                className="absolute top-3 left-3 h-5 w-5 z-10 accent-[#1A73E8] cursor-pointer"
+                onClick={(e) => e.stopPropagation()} // stops double toggle
+              />
+
+              {/* Image */}
               <img
                 src={p.url}
-                alt=""
-                className="w-full h-52 object-cover transform hover:scale-105 transition duration-300"
-
+                alt={p.name}
+                className={`w-full h-52 object-cover transition duration-300 ${
+                  isSelected ? "opacity-85" : "opacity-100"
+                }`}
               />
-              <div className="absolute top-3 left-3">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => onToggleOne(p.id)}
-                  className="size-5 accent-indigo-600"
-                />
-              </div>
             </div>
           );
         })}
